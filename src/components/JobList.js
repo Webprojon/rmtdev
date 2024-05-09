@@ -3,13 +3,18 @@ import {
 	jobDetailsContentEl,
 	BASE_API_URL,
 	getData,
+	state,
 } from "../common.js";
 import renderError from "./Error.js";
 import renderJobDetails from "./JobDetails.js";
 import renderSpinner from "./Spinner.js";
 
-const renderJobList = (jobItems) => {
-	jobItems.slice(0, 7).map((jobItem) => {
+const renderJobList = () => {
+	// remove previous job items
+	jobListSearchEl.innerHTML = "";
+
+	// display job items
+	state.searchJobItems.slice(0, 7).map((jobItem) => {
 		const {
 			id,
 			badgeLetters,
