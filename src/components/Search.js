@@ -3,11 +3,14 @@ import {
 	searchFormEl,
 	jobListSearchEl,
 	numberEl,
+	BASE_API_URL,
+	getData,
 } from "../common.js";
 import renderError from "./Error.js";
+import renderJobList from "./JobList.js";
 import renderSpinner from "./Spinner.js";
 
-const submitHandler = (event) => {
+const submitHandler = async (event) => {
 	// prevent default behavior
 	event.preventDefault();
 
@@ -21,75 +24,27 @@ const submitHandler = (event) => {
 		renderError("Your search may not contain numbers");
 		return;
 	}
-
 	// blur input
 	searchInputEl.blur();
-
 	// empty
 	jobListSearchEl.innerHTML = "";
-
 	// render spinner
 	renderSpinner("search");
 
 	// fetch search result
-	const fetchingData = async () => {
-		try {
-			const response = await fetch(
-				`https://bytegrad.com/course-assets/js/2/api/jobs?search=${serachText}`,
-			);
-			if (!response.ok) {
-				console.log("Something went wrong");
-				return;
-			}
-
-			const data = await response.json();
-			// extact job items
-			const { jobItems } = data;
-
-			// remove spinner
-			renderSpinner("search");
-
-			// render number of results
-			numberEl.textContent = jobItems.length;
-
-			// render job items in search job list
-			jobItems.slice(0, 7).map((jobItem) => {
-				const {
-					id,
-					badgeLetters,
-					title,
-					company,
-					duration,
-					salary,
-					location,
-					daysAgo,
-				} = jobItem;
-				const newJobItemHTML = `
-											<li class="job-item">
-													<a class="job-item__link" href="${id}">
-															<div class="job-item__badge">${badgeLetters}</div>
-															<div class="job-item__middle">
-																	<h3 class="third-heading">${title}</h3>
-																	<p class="job-item__company">${company}</p>
-																	<div class="job-item__extras">
-																			<p class="job-item__extra"><i class="fa-solid fa-clock job-item__extra-icon"></i> ${duration}</p>
-																			<p class="job-item__extra"><i class="fa-solid fa-money-bill job-item__extra-icon"></i> ${salary}</p>
-																			<p class="job-item__extra"><i class="fa-solid fa-location-dot job-item__extra-icon"></i> ${location}</p>
-																	</div>
-															</div>
-															<div class="job-item__right">
-																	<i class="fa-solid fa-bookmark job-item__bookmark-icon"></i>
-																	<time class="job-item__time">${daysAgo}d</time>
-															</div>
-													</a>
-											</li>
-									`;
-				jobListSearchEl.insertAdjacentHTML("beforeend", newJobItemHTML);
-			});
-		} catch (error) {
-			console.log(error.message);
-		}
-	};
-	fetchingData();
+	try {
+		const data = await getData(`${BASE_API_URL}/jobs?search=${serachText}`);
+		// extact job items
+		const { jobItems } = data;
+		// remove spinner
+		renderSpinner("search");
+		// render number of results
+		numberEl.textContent = jobItems.length;
+		// render job items in search job list
+		renderJobList(jobItems);
+	} catch (error) {
+		renderError(error.message);
+		renderSpinner("search");
+	}
 };
 searchFormEl.addEventListener("submit", submitHandler);

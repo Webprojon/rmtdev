@@ -1,4 +1,10 @@
-// GLOBAL SELECTORS
+// GLOBAL
+
+// CONSTANTS
+export const BASE_API_URL = "https://bytegrad.com/course-assets/js/2/api";
+export const DEFAULT_DISPLAY_TIME = 3500;
+
+// SELECTORS
 export const bookmarksBtnEl = document.querySelector(".bookmarks-btn");
 export const errorEl = document.querySelector(".error");
 export const errorTextEl = document.querySelector(".error__text");
@@ -37,3 +43,16 @@ export const spinnerSearchEl = document.querySelector(".spinner--search");
 export const spinnerJobDetailsEl = document.querySelector(
 	".spinner--job-details",
 );
+
+// HELPER / UTILITY FUNCTIONS
+export const getData = async (completeURL) => {
+	const response = await fetch(completeURL);
+	const data = await response.json();
+	if (!response.ok) {
+		throw {
+			message: new Error(data.description),
+		};
+	}
+
+	return data;
+};
