@@ -4,6 +4,7 @@ import {
 	BASE_API_URL,
 	getData,
 	state,
+	RESULTS_PER_PAGE,
 } from "../common.js";
 import renderError from "./Error.js";
 import renderJobDetails from "./JobDetails.js";
@@ -14,18 +15,23 @@ const renderJobList = () => {
 	jobListSearchEl.innerHTML = "";
 
 	// display job items
-	state.searchJobItems.slice(0, 7).map((jobItem) => {
-		const {
-			id,
-			badgeLetters,
-			title,
-			company,
-			duration,
-			salary,
-			location,
-			daysAgo,
-		} = jobItem;
-		const newJobItemHTML = `
+	state.searchJobItems
+		.slice(
+			state.currentPage * RESULTS_PER_PAGE - RESULTS_PER_PAGE,
+			state.currentPage * RESULTS_PER_PAGE,
+		)
+		.map((jobItem) => {
+			const {
+				id,
+				badgeLetters,
+				title,
+				company,
+				duration,
+				salary,
+				location,
+				daysAgo,
+			} = jobItem;
+			const newJobItemHTML = `
 											<li class="job-item">
 													<a class="job-item__link" href="${id}">
 															<div class="job-item__badge">${badgeLetters}</div>
@@ -45,8 +51,8 @@ const renderJobList = () => {
 													</a>
 											</li>
 									`;
-		jobListSearchEl.insertAdjacentHTML("beforeend", newJobItemHTML);
-	});
+			jobListSearchEl.insertAdjacentHTML("beforeend", newJobItemHTML);
+		});
 };
 
 const clickHandler = async (event) => {
