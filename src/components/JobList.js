@@ -32,7 +32,11 @@ const renderJobList = () => {
 				daysAgo,
 			} = jobItem;
 			const newJobItemHTML = `
-											<li class="job-item">
+											<li class="job-item ${
+												state.activeJobItem.id === jobItem.id
+													? "job-item--active"
+													: ""
+											}">
 													<a class="job-item__link" href="${id}">
 															<div class="job-item__badge">${badgeLetters}</div>
 															<div class="job-item__middle">
@@ -78,12 +82,22 @@ const clickHandler = async (event) => {
 	// get the id
 	const id = jobItemEl.children[0].getAttribute("href");
 
+	// update state
+	state.activeJobItem = state.searchJobItems.find(
+		(jobItem) => jobItem.id === +id,
+	);
+
+	// add it to url
+	history.pushState(null, "", `/#${id}`);
+
 	// fetch job item data
 	try {
 		const data = await getData(`${BASE_API_URL}/jobs/${id}`);
 		const { jobItem } = data;
+
 		// remove spinner
 		renderSpinner("job-details");
+
 		// render job details
 		renderJobDetails(jobItem);
 	} catch (error) {
