@@ -5,33 +5,45 @@ import {
 	getData,
 	state,
 	RESULTS_PER_PAGE,
+	jobListBookmarksEl,
 } from "../common.js";
 import renderError from "./Error.js";
 import renderJobDetails from "./JobDetails.js";
 import renderSpinner from "./Spinner.js";
 
-const renderJobList = () => {
-	// remove previous job items
-	jobListSearchEl.innerHTML = "";
+const renderJobList = (whichJobList = "search") => {
+	// determine correct selector for job list
+	const jobListEl =
+		whichJobList === "search" ? jobListSearchEl : jobListBookmarksEl;
 
-	// display job items
-	state.searchJobItems
-		.slice(
+	// remove previous job items
+	jobListEl.innerHTML = "";
+
+	// determine the job items that should be rendered
+	let jobItems;
+	if (whichJobList === "search") {
+		jobItems = state.searchJobItems.slice(
 			state.currentPage * RESULTS_PER_PAGE - RESULTS_PER_PAGE,
 			state.currentPage * RESULTS_PER_PAGE,
-		)
-		.map((jobItem) => {
-			const {
-				id,
-				badgeLetters,
-				title,
-				company,
-				duration,
-				salary,
-				location,
-				daysAgo,
-			} = jobItem;
-			const newJobItemHTML = `
+		);
+	} else {
+		jobItems = state.bookmarkJobItems;
+	}
+
+	// display job items
+
+	jobItems.map((jobItem) => {
+		const {
+			id,
+			badgeLetters,
+			title,
+			company,
+			duration,
+			salary,
+			location,
+			daysAgo,
+		} = jobItem;
+		const newJobItemHTML = `
 											<li class="job-item ${
 												state.activeJobItem.id === jobItem.id
 													? "job-item--active"
@@ -55,8 +67,8 @@ const renderJobList = () => {
 													</a>
 											</li>
 									`;
-			jobListSearchEl.insertAdjacentHTML("beforeend", newJobItemHTML);
-		});
+		jobListEl.insertAdjacentHTML("beforeend", newJobItemHTML);
+	});
 };
 
 const clickHandler = async (event) => {
@@ -67,8 +79,11 @@ const clickHandler = async (event) => {
 	const jobItemEl = event.target.closest(".job-item");
 
 	// remove active class from previously active job item
-	const activeEl = document.querySelector(".job-item--active");
-	activeEl?.classList.remove("job-item--active");
+	document
+		.querySelectorAll(".job-item--active")
+		.forEach((jobItemWithActiveClass) =>
+			jobItemWithActiveClass.classList.remove("job-item--active"),
+		);
 
 	// add active class
 	jobItemEl.classList.add("job-item--active");
@@ -107,5 +122,7 @@ const clickHandler = async (event) => {
 };
 
 jobListSearchEl.addEventListener("click", clickHandler);
+
+jobListBookmarksEl.addEventListener("click", clickHandler);
 
 export default renderJobList;

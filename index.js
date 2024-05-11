@@ -1,3 +1,4 @@
+import "./src/components/Bookmarks.js";
 import "./src/components/Error.js";
 import "./src/components/JobDetails.js";
 import "./src/components/JobList.js";
