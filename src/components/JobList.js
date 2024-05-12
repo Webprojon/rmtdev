@@ -31,7 +31,6 @@ const renderJobList = (whichJobList = "search") => {
 	}
 
 	// display job items
-
 	jobItems.map((jobItem) => {
 		const {
 			id,
@@ -61,7 +60,12 @@ const renderJobList = (whichJobList = "search") => {
 																	</div>
 															</div>
 															<div class="job-item__right">
-																	<i class="fa-solid fa-bookmark job-item__bookmark-icon"></i>
+																	<i class="fa-solid fa-bookmark job-item__bookmark-icon ${
+																		state.bookmarkJobItems.some(
+																			(bookmarkJobItem) =>
+																				bookmarkJobItem.id === jobItem.id,
+																		) && "job-item__bookmark-icon--bookmarked"
+																	}"></i>
 																	<time class="job-item__time">${daysAgo}d</time>
 															</div>
 													</a>
@@ -85,9 +89,6 @@ const clickHandler = async (event) => {
 			jobItemWithActiveClass.classList.remove("job-item--active"),
 		);
 
-	// add active class
-	jobItemEl.classList.add("job-item--active");
-
 	// empty the job details section
 	jobDetailsContentEl.innerHTML = "";
 
@@ -98,9 +99,11 @@ const clickHandler = async (event) => {
 	const id = jobItemEl.children[0].getAttribute("href");
 
 	// update state
-	state.activeJobItem = state.searchJobItems.find(
-		(jobItem) => jobItem.id === +id,
-	);
+	const allJobItems = [...state.searchJobItems, ...state.bookmarkJobItems];
+	state.activeJobItem = allJobItems.find((jobItem) => jobItem.id === +id);
+
+	// render search job list
+	renderJobList();
 
 	// add it to url
 	history.pushState(null, "", `/#${id}`);
